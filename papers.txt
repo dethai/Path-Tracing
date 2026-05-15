@@ -1,0 +1,11 @@
+A Pixel Is Not A Little Square, A Pixel Is Not A Little Square, A Pixel Is Not A Little Square
+
+little square model continues to dominate our collective 
+minds. 
+why it is wrong in general.
+appropriate to use a little square in the context of a pixel. 
+I propose a discrete to continuous map-
+ping—because this is where the problem arises—that always works and does not 
+assume too much. 
+
+pixel should be a point not a square (pointsample)
