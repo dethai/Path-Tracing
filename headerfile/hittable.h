@@ -6,11 +6,13 @@
 // this is for inheritance when we have other classes like triangle sphere 
 // we dont need if for each class to call hit 
 //
+class material;
 class hit_record {
   public:
     point3 p; // point3 and vec3 are the same class ()
     vec3 normal; 
     double t;
+    shared_ptr<material> mat;
     bool front_face;
 
     void set_face_normal(const ray& r, const vec3& outward_normal) {
