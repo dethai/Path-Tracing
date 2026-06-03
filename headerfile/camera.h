@@ -14,10 +14,14 @@ class camera {
     int    image_width  = 100;  // Rendered image width in pixel count
     int    samples_per_pixel = 10;   // Count of random samples for each pixel
     int    max_depth         = 10; // max depth of the recursive function (avoid too many bounces)
+    
     double vfov = 90;
     point3 lookfrom = point3(0,0,0);   // Point camera is looking from
     point3 lookat   = point3(0,0,-1);  // Point camera is looking at
     vec3   vup      = vec3(0,1,0);     // Camera-relative "up" direction
+    double defocus_angle = 0;  // Variation angle of rays through each pixel
+    double focus_dist = 10;    // Distance from camera lookfrom point to plane of perfect focus
+
     
     void render(const hittable& world) {
         initialize();
@@ -47,6 +51,7 @@ class camera {
     vec3   pixel_delta_u;  // Offset to pixel to the right
     vec3   pixel_delta_v;  // Offset to pixel below
     vec3   u, v, w;
+
     void initialize() {
         image_height = int(image_width / aspect_ratio);
         image_height = (image_height < 1) ? 1 : image_height;
@@ -58,7 +63,6 @@ class camera {
         auto theta = degrees_to_radians(vfov);
         auto h = std::tan(theta/2);
         auto viewport_height = 2 * h * focal_length;
-        
         auto viewport_width = viewport_height * (double(image_width)/image_height);
 
         // Calculate the vectors across the horizontal and down the vertical viewport edges.
