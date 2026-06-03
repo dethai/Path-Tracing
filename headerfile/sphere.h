@@ -13,7 +13,8 @@ class sphere : public hittable {
     //determinant >0: has roots (2 solutions)
     //<0: no real solutions
     // = 0 one real solution 
-     
+    sphere(const point3& center, double radius, shared_ptr<material> mat)
+      : center(center), radius(std::fmax(0,radius)), mat(mat) {}
     bool hit(const ray& r, interval ray_t, hit_record& rec) const override {
         vec3 oc = center - r.origin();
         auto a = r.direction().length_squared();
