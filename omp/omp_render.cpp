@@ -7,12 +7,19 @@
 #include "headerfile/camera.h"
 
 #include "headerfile/timing.h"
-
+#include "omp.h"
 
 // at(t) give us P(t)
 // shifting P - Center to get normal
 
-int main() {
+int main(int argc, const char * argv[]) {
+    int threads = 1;
+
+    if (argc > 1) {
+        threads = atoi(argv[1]);
+    }
+    omp_set_num_threads(threads);
+    
     double t0_total = get_time();
     double t0_world = get_time();
     hittable_list world;
@@ -20,7 +27,6 @@ int main() {
     auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
     world.add(make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
 
-    
     for (int a = -5; a < 5; a++) {
         for (int b = -5; b < 5; b++) {
             auto choose_mat = random_double();

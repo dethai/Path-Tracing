@@ -7,6 +7,7 @@
 #include "material.h"
 
 #include "timing.h"
+#include "omp.h"
 class camera {
   public:
     /* Public Camera Parameters Here */
@@ -26,22 +27,34 @@ class camera {
 
     void render(const hittable& world) {
         double t0_init = get_time();
+        
+
         initialize();
+        
+        std::vector<color> framebuffer(image_width * image_height);
         double t1_init = get_time();
         std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
         double t0_render = get_time();
-       
+        #pragma omp parallel for collapse(2) schedule(static)
         for (int j = 0; j < image_height; j++) {
-            std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
+            //std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
             for (int i = 0; i < image_width; i++) {
                 color pixel_color(0,0,0);
                 for (int sample = 0; sample < samples_per_pixel; sample++) { // we do multiple rays around the pixel and average the result 
                     ray r = get_ray(i, j);
                     pixel_color += ray_color(r, max_depth, world);
                 }
-                write_color(std::cout, pixel_samples_scale * pixel_color);
+                framebuffer[j*image_width + i] = pixel_samples_scale * pixel_color;
+                //write_color(std::cout, pixel_samples_scale * pixel_color);
             }
         }
+        
+        for (int j = 0; j < image_height; j++) {
+            for (int i = 0; i < image_width; i++) {
+                write_color(std::cout,framebuffer[j*image_width+i]);
+            }
+        }
+        
         double t1_render = get_time();
         std::clog << "\rDone.                 \n";
         std::clog << "Render time of serial: "
