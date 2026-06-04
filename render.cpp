@@ -6,19 +6,23 @@
 #include "headerfile/sphere.h"
 #include "headerfile/camera.h"
 
+#include "headerfile/timing.h"
+
 
 // at(t) give us P(t)
 // shifting P - Center to get normal
 
-
 int main() {
+    double t0_total = get_time();
+    double t0_world = get_time();
     hittable_list world;
 
     auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
     world.add(make_shared<sphere>(point3(0,-1000,0), 1000, ground_material));
 
-    for (int a = -11; a < 11; a++) {
-        for (int b = -11; b < 11; b++) {
+    
+    for (int a = -5; a < 5; a++) {
+        for (int b = -5; b < 5; b++) {
             auto choose_mat = random_double();
             point3 center(a + 0.9*random_double(), 0.2, b + 0.9*random_double());
 
@@ -44,6 +48,7 @@ int main() {
             }
         }
     }
+    
 
     auto material1 = make_shared<dielectric>(1.5);
     world.add(make_shared<sphere>(point3(0, 1, 0), 1.0, material1));
@@ -54,6 +59,7 @@ int main() {
     auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
     world.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
 
+    double t1_world = get_time();
     camera cam;
 
     cam.aspect_ratio      = 16.0 / 9.0;
@@ -68,6 +74,15 @@ int main() {
 
     cam.defocus_angle = 0.6;
     cam.focus_dist    = 10.0;
-
+    double t0_render = get_time();
     cam.render(world);
+    double t1_render = get_time();
+    double t1_total = get_time();
+     
+    std::clog << "Total time of serial: "
+          << (t1_total - t0_total)
+          << " seconds\n";
+   std::clog << "World generation time of serial: "
+          << (t1_world - t0_world)
+          << " seconds\n";
 }

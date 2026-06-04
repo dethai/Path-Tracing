@@ -6,6 +6,7 @@
 #include "color.h"
 #include "material.h"
 
+#include "timing.h"
 class camera {
   public:
     /* Public Camera Parameters Here */
@@ -24,10 +25,12 @@ class camera {
 
 
     void render(const hittable& world) {
+        double t0_init = get_time();
         initialize();
-
+        double t1_init = get_time();
         std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
-
+        double t0_render = get_time();
+       
         for (int j = 0; j < image_height; j++) {
             std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
             for (int i = 0; i < image_width; i++) {
@@ -39,8 +42,14 @@ class camera {
                 write_color(std::cout, pixel_samples_scale * pixel_color);
             }
         }
-
+        double t1_render = get_time();
         std::clog << "\rDone.                 \n";
+        std::clog << "Render time of serial: "
+          << (t1_render - t0_render)
+          << " seconds\n";
+        std::clog << "Camera init of serial: "
+          << (t1_init- t0_init)
+          << " seconds\n";
     }
 
   private:
