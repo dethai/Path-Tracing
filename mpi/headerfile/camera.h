@@ -24,34 +24,38 @@ class camera {
     double focus_dist = 10;    // Distance from camera lookfrom point to plane of perfect focus
 
 
-    void render(const hittable& world) {
-        double t0_init = get_time();
-        initialize();
-        double t1_init = get_time();
-        std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
-        double t0_render = get_time();
-       
-        for (int j = 0; j < image_height; j++) {
-            std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
-            for (int i = 0; i < image_width; i++) {
-                color pixel_color(0,0,0);
-                for (int sample = 0; sample < samples_per_pixel; sample++) { // we do multiple rays around the pixel and average the result 
-                    ray r = get_ray(i, j);
-                    pixel_color += ray_color(r, max_depth, world);
-                }
-                write_color(std::cout, pixel_samples_scale * pixel_color);
-            }
-        }
-        double t1_render = get_time();
-        std::clog << "\rDone.                 \n";
-        std::clog << "Render time of serial: "
-          << (t1_render - t0_render)
-          << " seconds\n";
-        std::clog << "Camera init of serial: "
-          << (t1_init- t0_init)
-          << " seconds\n";
-    }
+void render(const hittable& world,
+            int start_row,
+            int end_row,
+            std::vector<double>& local_buffer) {
 
+    initialize();
+
+    for (int j = start_row; j < end_row; j++) {
+        for (int i = 0; i < image_width; i++) {
+
+            color pixel_color(0,0,0);
+
+            for (int s = 0; s < samples_per_pixel; s++) {
+                ray r = get_ray(i, j);
+                pixel_color += ray_color(r, max_depth, world);
+            }
+
+            pixel_color *= pixel_samples_scale;
+
+            int local_j = j - start_row;
+            int pixel_index = (local_j * image_width + i) * 3; // 🔥 IMPORTANT
+
+            local_buffer[pixel_index + 0] = pixel_color.x();
+            local_buffer[pixel_index + 1] = pixel_color.y();
+            local_buffer[pixel_index + 2] = pixel_color.z();
+        }
+    }
+}
+    int get_image_height() const {
+        int h = int(image_width / aspect_ratio);
+        return (h < 1) ? 1 : h;
+    }   
   private:
     int    image_height;   // Rendered image height
     double pixel_samples_scale;  // Color scale factor for a sum of pixel samples
@@ -140,5 +144,6 @@ class camera {
         auto a = 0.5*(unit_direction.y() + 1.0);
         return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0);
     }
+    
 };
 #endif
